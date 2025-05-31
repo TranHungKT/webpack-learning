@@ -4,7 +4,7 @@ import {
   removeTodoEventHandler,
   toggleTodoEventListener,
 } from './event-handlers';
-
+import '../styles/index.css';
 window.addEventListener('load', onLoadEventHandler);
 document.addEventListener('change', function (event) {
   if (event.target.classList.contains('new-todo')) {
