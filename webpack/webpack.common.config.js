@@ -17,6 +17,14 @@ const config = {
           },
         ],
       },
+      {
+        test: /\.js$/,
+        use: [
+          {
+            loader: 'babel-loader',
+          },
+        ],
+      },
     ],
   },
   plugins: [
