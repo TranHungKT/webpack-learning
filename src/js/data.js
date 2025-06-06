@@ -3,7 +3,6 @@ import initialTodos from '../todos.json';
 let data = initialTodos;
 
 export function getAllTodos() {
-  console.log('<<<');
   return data;
 }
 

@@ -1,4 +1,17 @@
 import * as styles from '../styles/notification.module.css';
+import { css } from '@emotion/css';
+import CheckmarkImage from '../../images/checkmark.svg';
+
+const checkboxSize = '30px';
+const realCheckboxClass = css`
+  width: ${checkboxSize};
+  height: ${checkboxSize};
+  cursor: pointer;
+  opacity: 0;
+  position: absolute;
+  top: -3px;
+  left: -5px;
+`;
 
 export function renderTodos(todos) {
   const renderedItemArray = todos.map(function (todo) {
@@ -7,8 +20,8 @@ export function renderTodos(todos) {
     return `
             <li data-id="${todo.id}" class="${className}">
                 <span class="custom-checkbox">
-                    <img class="check" src="./images/checkmark.svg" width="22" height="22"></img>
-                    <input class="real-checkbox" type="checkbox" ${completionClass} />
+                    <img class="check" src="${CheckmarkImage}" width="22" height="22"></img>
+                    <input class="${realCheckboxClass}" data-element="real-checkbox" type="checkbox" ${completionClass} />
                 </span>
                 <label>${todo.text}</label>
                 <span class="delete"></span>
@@ -33,8 +46,15 @@ export function getTodoId(element) {
 }
 
 function showNotification() {
-  const notification = `<div class="${styles.notification}">Todo item added</div>`;
-  document.body.innerHTML += notification;
+  const notificationElement = document.createElement('div');
+  notificationElement.classList.add(
+    'alert',
+    'alert-success',
+    styles.notification,
+  );
+  notificationElement.setAttribute('role', 'alert');
+  notificationElement.innerHTML = 'Todo item added';
+  document.body.appendChild(notificationElement);
   // And we are going to remove this div after 2 seconds.
   setTimeout(function () {
     const notificationElement = document.querySelector(

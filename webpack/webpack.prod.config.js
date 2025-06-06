@@ -1,12 +1,32 @@
-const common = require('./webpack.common.config');
+const common = require('./webpack.common.config.js');
 const { merge } = require('webpack-merge');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const CssMinimizerPlugin = require('css-minimizer-webpack-plugin');
+const path = require('path');
+const glob = require('glob');
+const { PurgeCSSPlugin } = require('purgecss-webpack-plugin');
 
 module.exports = merge(common, {
-  output: {
-    filename: '[name].[contenthash:12].js',
-  },
   mode: 'production',
+  output: {
+    filename: 'js/[name].[contenthash:12].js',
+  },
+  optimization: {
+    minimize: true,
+    minimizer: [
+      `...`,
+      new CssMinimizerPlugin({
+        minimizerOptions: {
+          preset: [
+            'default',
+            {
+              discardComments: { removeAll: true },
+            },
+          ],
+        },
+      }),
+    ],
+  },
   module: {
     rules: [
       {
@@ -29,11 +49,63 @@ module.exports = merge(common, {
           },
         ],
       },
+      {
+        test: /\.less$/,
+        use: [MiniCssExtractPlugin.loader, 'css-loader', 'less-loader'],
+      },
+      {
+        test: /\.scss$/,
+        use: [
+          MiniCssExtractPlugin.loader,
+          'css-loader',
+          'postcss-loader',
+          {
+            loader: 'sass-loader',
+            options: {
+              sassOptions: {
+                quietDeps: true,
+                silenceDeprecations: ['import'],
+              },
+            },
+          },
+        ],
+      },
+      {
+        test: /\.(png|jpg|svg)$/,
+        type: 'asset',
+        parser: {
+          dataUrlCondition: {
+            maxSize: 10 * 1024, // 10 kb
+          },
+        },
+        generator: {
+          filename: './images/[name].[contenthash:12][ext]',
+        },
+        use: [
+          {
+            loader: 'image-webpack-loader',
+            options: {
+              mozjpeg: {
+                quality: 40,
+              },
+              pngquant: {
+                quality: [0.65, 0.9],
+                speed: 4,
+              },
+            },
+          },
+        ],
+      },
     ],
   },
   plugins: [
     new MiniCssExtractPlugin({
-      filename: '[name].[contenthash].css',
+      filename: 'css/[name].[contenthash:12].css',
+    }),
+    new PurgeCSSPlugin({
+      paths: glob.sync(`${path.join(__dirname, '../src')}/**/*`, {
+        nodir: true,
+      }),
     }),
   ],
 });
